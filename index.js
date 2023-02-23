@@ -14,9 +14,9 @@ app.get("/",(req,res)=>{
     res.send("Preeti Raj")
 })
 app.use('/api/auth', authRoutes);
-// app.use(authenticate);
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
+// app.use(authenticate);
 app.use('/dashboard',DashboardRouter)
 app.listen(process.env.PORT,async()=>{
     try{
