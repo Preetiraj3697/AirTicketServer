@@ -13,7 +13,7 @@ app.get("/",(req,res)=>{
     res.send("Preeti Raj")
 })
 app.use('/api/auth', authRoutes);
-// app.use(authenticate);
+app.use(authenticate);
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
 

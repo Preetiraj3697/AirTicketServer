@@ -1,40 +1,39 @@
 const express = require('express');
 const Booking = require('../Model/Booking');
+const User = require('../Model/User');
+const Flight = require('../Model/Flight');
+
 const router = express.Router();
 
 router.post('/', async (req, res) => {
+    console.log(req.body.flight)
   try {
-    const { flightId } = req.body;
-
-    // check if flight exists
+    const { flightId } = req.body.flight;
     const flight = await Flight.findById(flightId);
     if (!flight) {
-      return res.status(400).json({ message: 'Invalid flight ID' });
+      return res.status(404).json({ message: 'Flight not found' });
     }
-
-    // create new booking
-    const newBooking = new Booking({
+    const booking = new Booking({
       user: req.userId,
-      flight: flightId
+      flight: flight._id,
     });
 
-    await newBooking.save();
+    // save booking to database
+    const savedBooking = await booking.save();
 
-    res.json({ message: 'Booking created successfully' });
+    // add booking reference to user
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      {
+        $push: { bookings: savedBooking._id },
+      },
+      { new: true }
+    );
+
+    res.status(201).json({ booking: savedBooking });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
-
-router.get('/', async (req, res) => {
-  try {
-    const bookings = await Booking.find({ user: req.userId }).populate('flight');
-
-    res.json(bookings);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
