@@ -1,39 +1,23 @@
 const express = require('express');
 const Booking = require('../Model/Booking');
-const User = require('../Model/User');
-const Flight = require('../Model/Flight');
-
+const FlightModule = require('../Model/Flight')
+const UsersModule = require('../Model/User')
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-    console.log(req.body.flight)
+  console.log(req.body)
+  const payload = req.body;
   try {
-    const { flightId } = req.body.flight;
-    const flight = await Flight.findById(flightId);
-    if (!flight) {
-      return res.status(404).json({ message: 'Flight not found' });
-    }
-    const booking = new Booking({
-      user: req.userId,
-      flight: flight._id,
-    });
-
-    // save booking to database
-    const savedBooking = await booking.save();
-
-    // add booking reference to user
-    const user = await User.findByIdAndUpdate(
-      req.userId,
-      {
-        $push: { bookings: savedBooking._id },
-      },
-      { new: true }
-    );
-
-    res.status(201).json({ booking: savedBooking });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    let user=payload.user;
+    let flight=payload.flight
+    const Flight = await FlightModule.findOne({_id:flight});
+    const User= await UsersModule.findOne({_id:user})
+    const newBooking = new Booking({user:User,flight:Flight});
+    await newBooking.save();
+    res.status(201).json({ newBooking, message: "Book successfully" });
+  } catch (err) {
+    console.log("err :>> ", err);
+    res.send({ msg: err });
   }
 });
 

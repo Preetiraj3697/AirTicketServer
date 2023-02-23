@@ -3,6 +3,7 @@ const authRoutes = require('./Routes/auth');
 const flightRoutes = require('./Routes/flight');
 const bookingRoutes = require('./Routes/booking');
 const {authenticate} = require('./Middleware/authenticate');
+let DashboardRouter = require('./Routes/dashboard')
 const app = express();
 const {connection}=require("./Config/db")
 
@@ -13,10 +14,10 @@ app.get("/",(req,res)=>{
     res.send("Preeti Raj")
 })
 app.use('/api/auth', authRoutes);
-app.use(authenticate);
+// app.use(authenticate);
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
-
+app.use('/dashboard',DashboardRouter)
 app.listen(process.env.PORT,async()=>{
     try{
         await connection
